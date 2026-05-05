@@ -1,0 +1,176 @@
+Assignment 1: Access an open source dataset “Titanic”. Apply pre-processing techniques on the raw 
+dataset. 
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+# Load dataset
+df = pd.read_csv("titanic.csv")
+
+# Display first rows
+print(df.head())
+
+# Handle missing values
+df['Age'].fillna(df['Age'].mean(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+
+# Drop unnecessary columns
+df.drop(['Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
+
+# Convert categorical to numeric
+le = LabelEncoder()
+df['Sex'] = le.fit_transform(df['Sex'])
+df['Embarked'] = le.fit_transform(df['Embarked'])
+
+# Feature scaling
+scaler = StandardScaler()
+df[['Age', 'Fare']] = scaler.fit_transform(df[['Age', 'Fare']])
+
+print("\nPreprocessed Data:\n", df.head())
+
+Assignment 2: Text classification for Sentimental analysis using KNN. (Refer any dataset like Titanic, 
+Twitter, etc.) 
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+
+# Sample dataset
+texts = ["I love this", "This is bad", "Amazing product", "Worst experience"]
+labels = [1, 0, 1, 0]  # 1=Positive, 0=Negative
+
+# Convert text to vectors
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(texts)
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.2)
+
+# Train KNN
+model = KNeighborsClassifier(n_neighbors=3)
+model.fit(X_train, y_train)
+
+# Test
+test_text = vectorizer.transform(["I hate this"])
+prediction = model.predict(test_text)
+
+print("Prediction:", "Positive" if prediction[0] == 1 else "Negative")
+
+Assignment 3: Write a program to recognize a document is positive or negative based on polarity 
+words using suitable classification method.
+
+# Define polarity word lists
+positive_words = ["good", "happy", "love", "excellent", "great"]
+negative_words = ["bad", "sad", "hate", "terrible", "worst"]
+
+def classify(text):
+    text = text.lower().split()
+    pos = sum(word in positive_words for word in text)
+    neg = sum(word in negative_words for word in text)
+
+    if pos > neg:
+        return "Positive"
+    else:
+        return "Negative"
+
+# Test
+sentence = input("Enter sentence: ")
+print("Sentiment:", classify(sentence))
+
+Assignment 4: Download Abalone dataset. (URL: http://archive.ics.uci.edu/ml/datasets/Abalone) 
+a) Predict the number of rings either as a continuous value or as a classification problem. 
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+# Load dataset
+df = pd.read_csv("abalone.csv")
+
+# Convert categorical column
+df['Sex'] = df['Sex'].map({'M':0, 'F':1, 'I':2})
+
+X = df.drop('Rings', axis=1)
+y = df['Rings']
+
+# Convert rings to classes (young/old)
+y = (y > 10).astype(int)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+print("Accuracy:", model.score(X_test, y_test))
+
+b) Predict the age of abalone from physical measurements using linear regression from sklearn.linear_model import LinearRegression
+
+# Age approx = Rings + 1.5
+df['Age'] = df['Rings'] + 1.5
+
+X = df.drop(['Rings', 'Age'], axis=1)
+y = df['Age']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("Predicted Age:", model.predict(X_test[:5]))
+
+Assignment 5: We have given a collection of 8 points. 
+P1=[0.1,0.6] 
+P2=[0.15,0.71] 
+P3=[0.08,0.9] 
+P4=[0.16, 0.85] 
+P5=[0.2,0.3] 
+P6=[0.25,0.5] 
+P7=[0.24,0.1] 
+P8=[0.3,0.2]
+Perform the k-mean clustering with initial centroids as m1=P1 =Cluster#1=C1 and 
+m2=P8=cluster#2=C2. 
+
+import numpy as np
+
+# Points
+points = np.array([
+    [0.1,0.6],
+    [0.15,0.71],
+    [0.08,0.9],
+    [0.16,0.85],
+    [0.2,0.3],
+    [0.25,0.5],
+    [0.24,0.1],
+    [0.3,0.2]
+])
+
+# Initial centroids
+m1 = points[0]  # P1
+m2 = points[7]  # P8
+
+def distance(a, b):
+    return np.sqrt(np.sum((a - b)**2))
+
+# Assign clusters
+cluster1 = []
+cluster2 = []
+
+for p in points:
+    if distance(p, m1) < distance(p, m2):
+        cluster1.append(p)
+    else:
+        cluster2.append(p)
+
+print("Cluster 1:", cluster1)
+print("Cluster 2:", cluster2)
+
+# Check P6
+p6 = points[5]
+
+if distance(p6, m1) < distance(p6, m2):
+    print("P6 belongs to Cluster 1")
+else:
+    print("P6 belongs to Cluster 2")
+
+Answer the following 
+1] Which cluster does P6 belong to?
